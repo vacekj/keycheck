@@ -1,0 +1,12 @@
+[package]
+name = "keycheck"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+walkdir = "2.3.1"
+ignore = "0.4.20"
+regex = "1.5.4"
+ethers = "2.0.3"
+tempfile = "3.5.0"
+rand = "0.8.5"
