@@ -18,6 +18,8 @@ fn main() {
         for (path, line_number) in private_keys {
             println!("{}:{}", path.display(), line_number);
         }
+
+        std::process::exit(1);
     }
 }
 
