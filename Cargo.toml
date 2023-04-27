@@ -1,7 +1,12 @@
 [package]
 name = "keycheck"
+description = "Check your repository for Ethereum private keys"
 version = "0.1.0"
 edition = "2021"
+authors = ["atris <atriscrypto@protonmail.com"]
+license = "MIT"
+homepage = "https://github.com/vacekj/keycheck"
+repository = "https://github.com/vacekj/keycheck"
 
 [dependencies]
 ignore = "0.4.20"
@@ -13,3 +18,5 @@ rayon = "1.7.0"
 
 [dev-dependencies]
 ethers = "2.0.3"
+
+
