@@ -9,7 +9,6 @@ cargo install keycheck
 
 ## Usage
 
-
 ### Manual
 
 Check the current folder and all subfolders for private keys. Respects your `.gitignore`
@@ -35,6 +34,17 @@ lefthook install
 
 ### Ignoring files
 keycheck respects a `.keycheckignore` file. Format is same as `.gitignore`, so globs, comments etc. work as expected.
+
+## Performance
+
+on `OpenZeppelin/openzeppelin-contracts` repo:
+
+```shell
+$ hyperfine keycheck -i --warmup 5
+Benchmark 1: keycheck
+  Time (mean ± σ):      13.1 ms ±   0.5 ms    [User: 3.6 ms, System: 15.9 ms]
+  Range (min … max):    12.4 ms …  15.2 ms    183 runs
+```
 
 # License
 

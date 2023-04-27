@@ -1,8 +1,12 @@
 use std::fs;
-use std::io::{BufRead, BufReader};
 use std::path::Path;
-use ignore::{self, WalkBuilder};
+use std::sync::{Arc, Mutex};
+use ignore::{self, DirEntry, WalkBuilder, WalkState};
 use regex::Regex;
+
+lazy_static::lazy_static! {
+    static ref PRIVATE_KEY_REGEX: Regex = Regex::new(r"0x([A-Fa-f0-9]{64})").unwrap();
+}
 
 fn main() {
     let mut builder = WalkBuilder::new("./");
@@ -29,24 +33,29 @@ fn main() {
 }
 
 fn find_private_keys(builder: WalkBuilder) -> Vec<(std::path::PathBuf, usize)> {
-    let mut private_keys = Vec::new();
+    let private_keys = Arc::new(Mutex::new(Vec::new()));
 
-    for entry in builder.build().flatten() {
-        let path = entry.path();
-        if path.is_file() {
-            if let Some(line_number) = find_private_key(path) {
-                private_keys.push((path.to_path_buf(), line_number));
+    let visitor = |entry: Result<DirEntry, ignore::Error>| {
+        if let Ok(entry) = entry {
+            let path = entry.path();
+            if path.is_file() {
+                if let Some(line_number) = find_private_key(path) {
+                    let mut private_keys = private_keys.lock().unwrap();
+                    private_keys.push((path.to_path_buf(), line_number));
+                }
             }
         }
-    }
+        WalkState::Continue
+    };
 
-    private_keys
+    builder.build_parallel().run(|| Box::new(visitor));
+
+    Arc::try_unwrap(private_keys).unwrap().into_inner().unwrap()
 }
 
 fn find_private_key(path: &Path) -> Option<usize> {
     let file_contents = fs::read_to_string(path).ok()?;
-    let re = Regex::new(r"0x([A-Fa-f0-9]{64})").unwrap();
-    re.find(&file_contents).map(|key| count_newlines(&file_contents[..key.start()]) + 1)
+    PRIVATE_KEY_REGEX.find(&file_contents).map(|key| count_newlines(&file_contents[..key.start()]) + 1)
 }
 
 fn count_newlines(s: &str) -> usize {
