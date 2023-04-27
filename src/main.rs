@@ -1,15 +1,20 @@
 use std::fs;
+use std::io::{BufRead, BufReader};
 use std::path::Path;
 use ignore::{self, WalkBuilder};
 use regex::Regex;
 
 fn main() {
     let mut builder = WalkBuilder::new("./");
-    builder
-        .standard_filters(false)
+    builder.standard_filters(false)
         .hidden(false)
         .parents(false)
         .git_ignore(true);
+
+    let path = Path::new(".keycheckignore");
+    if path.is_file() {
+        builder.add_ignore(path);
+    }
 
     let private_keys = find_private_keys(builder);
 
@@ -50,6 +55,7 @@ fn count_newlines(s: &str) -> usize {
 
 #[cfg(test)]
 mod tests {
+    use std::{assert_eq, format};
     use super::*;
     use std::fs::File;
     use std::io::Write;

@@ -9,6 +9,9 @@ cargo install keycheck
 
 ## Usage
 
+
+### Manual
+
 Check the current folder and all subfolders for private keys. Respects your `.gitignore`
 <br/>Upon finding a private key, outputs the file and line number, but not the key itself.
 Exit code 0 for no keys, 1 for key(s) found.
@@ -17,7 +20,7 @@ Exit code 0 for no keys, 1 for key(s) found.
 keycheck
 ```
 
-## In a git pre-commit hook
+### In a git pre-commit hook
 
 ```shell
 brew install lefthook
@@ -29,6 +32,9 @@ echo 'pre-commit:
       
 lefthook install
 ```
+
+### Ignoring files
+keycheck respects a `.keycheckignore` file. Format is same as `.gitignore`, so globs, comments etc. work as expected.
 
 # License
 
