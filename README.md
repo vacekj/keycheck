@@ -33,7 +33,7 @@ lefthook install
 ```
 
 ### Ignoring files
-keycheck respects a `.keycheckignore` file. Format is same as `.gitignore`, so globs, comments etc. work as expected.
+keycheck respects a `.keycheckignore` file. Format is the same as `.gitignore`, so globs, comments etc. work as expected.
 
 ## Performance
 
