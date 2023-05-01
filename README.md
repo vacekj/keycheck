@@ -45,6 +45,16 @@ Benchmark 1: keycheck
   Time (mean ± σ):      13.1 ms ±   0.5 ms    [User: 3.6 ms, System: 15.9 ms]
   Range (min … max):    12.4 ms …  15.2 ms    183 runs
 ```
+[priv-key-precommit](https://github.com/Dhaiwat10/priv-key-precommit)
+
+```shell
+hyperfine priv-key-precommit --warmup 5
+Benchmark 1: priv-key-precommit
+Time (mean ± σ):      1.651 s ±  0.047 s    [User: 1.625 s, System: 0.217 s]
+Range (min … max):    1.599 s …  1.746 s    10 runs
+``````
+
+`keycheck` is 126x times faster, or a 99.2% performance improvement.
 
 # License
 
