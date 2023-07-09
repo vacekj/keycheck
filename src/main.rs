@@ -1,3 +1,5 @@
+mod history;
+
 use std::fs;
 use std::path::Path;
 use std::sync::{Arc, Mutex};

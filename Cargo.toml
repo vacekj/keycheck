@@ -15,6 +15,7 @@ tempfile = "3.5.0"
 rand = "0.8.5"
 lazy_static = "1.4.0"
 rayon = "1.7.0"
+git2 = "0.17.2"
 
 [dev-dependencies]
 ethers = "2.0.3"
