@@ -63,7 +63,7 @@ pub fn check_history() {
         None,
     ).expect("Couldn't checkout initial commit");
 
-    repo.set_head(&("refs/heads".to_owned() + initial_branch_name.unwrap())).expect("Couldn't checkout initial commit");
+    repo.set_head(&(initial_branch_name.unwrap())).expect("Couldn't checkout initial commit");
 
     if !private_keys.is_empty() {
         println!("Warning: private keys found in the following files:");
