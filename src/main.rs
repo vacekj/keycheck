@@ -1,16 +1,30 @@
 mod history;
 
+use clap::Parser;
 use std::fs;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use ignore::{self, DirEntry, WalkBuilder, WalkState};
 use regex::Regex;
+use crate::history::check_history;
 
 lazy_static::lazy_static! {
     static ref PRIVATE_KEY_REGEX: Regex = Regex::new(r"0x([A-Fa-f0-9]{64})").unwrap();
 }
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    #[arg(short, long)]
+    history: bool,
+}
+
 pub fn main() {
+    let args = Args::parse();
+    if args.history {
+        check_history();
+        return;
+    }
     let mut builder = WalkBuilder::new("./");
     builder.standard_filters(false)
         .hidden(false)

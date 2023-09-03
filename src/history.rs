@@ -27,7 +27,7 @@ fn checkout_commit(repo: &Repository, id: &Oid) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn main() {
+pub fn check_history() {
     let repo = Repository::discover(".").expect("Couldn't open repository");
     let head = repo.head().expect("Couldn't find head");
 
