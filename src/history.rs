@@ -29,7 +29,7 @@ fn checkout_commit(repo: &Repository, id: &Oid) -> Result<(), Box<dyn Error>> {
 
 pub fn check_history() {
     let repo = Repository::discover(".").expect("Couldn't open repository");
-    let head = repo.head().expect("Couldn't find head");
+    let head = repo.head().expect("Couldn't find head").resolve().unwrap();
 
     /* Check if working directory is clean, abort otherwise */
     if !repo.state().eq(&Clean) {
@@ -57,7 +57,16 @@ pub fn check_history() {
     }
 
     /* Checkout head after running through all commits */
-    repo.checkout_head(None).expect("Couldn't checkout head after finishing search");
+    let commit = repo.find_commit(head.target().unwrap()).unwrap();
+
+    let obj = repo.revparse_single(&("refs/heads/".to_owned() + commit.id().to_string().as_ref())).unwrap();
+
+    repo.checkout_tree(
+        &obj,
+        None,
+    ).expect("Couldn't checkout initial commit");
+
+    repo.set_head(&("refs/heads/".to_owned() + commit.id().to_string().as_ref()));
 
     if !private_keys.is_empty() {
         println!("Warning: private keys found in the following files:");
