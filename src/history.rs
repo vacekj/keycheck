@@ -31,7 +31,6 @@ pub fn check_history() {
     let repo = Repository::discover(".").expect("Couldn't open repository");
     let head = repo.head().expect("Couldn't find head").resolve().unwrap();
     let commit = repo.find_commit(head.target().unwrap()).unwrap();
-    let obj = repo.revparse_single(&("refs/heads/".to_owned() + commit.id().to_string().as_ref())).unwrap();
 
     /* Check if working directory is clean, abort otherwise */
     if !repo.state().eq(&Clean) {
@@ -60,11 +59,11 @@ pub fn check_history() {
 
     /* Checkout head after running through all commits */
     repo.checkout_tree(
-        &obj,
+        &commit.tree().unwrap().into_object(),
         None,
     ).expect("Couldn't checkout initial commit");
 
-    repo.set_head(&("refs/heads/".to_owned() + commit.id().to_string().as_ref()));
+    repo.set_head(&("refs/heads/".to_owned() + commit.id().to_string().as_ref())).expect("Couldn't checkout initial commit");
 
     if !private_keys.is_empty() {
         println!("Warning: private keys found in the following files:");
