@@ -1,4 +1,4 @@
-use git2::{Repository, Oid};
+use git2::{Repository, Oid, BranchType};
 use std::error::Error;
 use std::path::Path;
 use git2::RepositoryState::Clean;
@@ -31,7 +31,7 @@ pub fn check_history() {
     let repo = Repository::discover(".").expect("Couldn't open repository");
     let head = repo.head().expect("Couldn't find head").resolve().unwrap();
     let commit = repo.find_commit(head.target().unwrap()).unwrap();
-
+    let initial_branch_name = head.name();
     /* Check if working directory is clean, abort otherwise */
     if !repo.state().eq(&Clean) {
         println!("Working directory not clean, aborting history check to avoid losing changes.");
@@ -63,7 +63,7 @@ pub fn check_history() {
         None,
     ).expect("Couldn't checkout initial commit");
 
-    repo.set_head(&("refs/heads/".to_owned() + commit.id().to_string().as_ref())).expect("Couldn't checkout initial commit");
+    repo.set_head(&("refs/heads".to_owned() + initial_branch_name.unwrap())).expect("Couldn't checkout initial commit");
 
     if !private_keys.is_empty() {
         println!("Warning: private keys found in the following files:");
