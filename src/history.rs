@@ -1,5 +1,8 @@
-use git2::{Repository, Commit, Oid};
+use git2::{Repository, Oid};
 use std::error::Error;
+use git2::RepositoryState::Clean;
+
+use crate::main as checkerMain;
 
 fn get_all_commits(repo: &Repository) -> Result<Vec<Oid>, Box<dyn Error>> {
     let mut revwalk = repo.revwalk()?;
@@ -24,12 +27,19 @@ fn checkout_commit(repo: &Repository, id: &Oid) -> Result<(), Box<dyn Error>> {
 
 fn main() {
     let repo = Repository::discover(".").unwrap();
+
     /* Check if working directory is clean, abort otherwise */
+    if !repo.state().eq(&Clean) {
+        println!("Working directory not clean, aborting history check to avoid losing changes.");
+        return;
+    }
+
     let commits = get_all_commits(&repo).unwrap();
     for id in &commits {
         checkout_commit(&repo, id).unwrap();
-        main();
+        checkerMain();
     }
+
     /* Checkout head after running through all commits, even if main finds a match */
 
 }

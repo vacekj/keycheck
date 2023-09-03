@@ -10,7 +10,7 @@ lazy_static::lazy_static! {
     static ref PRIVATE_KEY_REGEX: Regex = Regex::new(r"0x([A-Fa-f0-9]{64})").unwrap();
 }
 
-fn main() {
+pub fn main() {
     let mut builder = WalkBuilder::new("./");
     builder.standard_filters(false)
         .hidden(false)
