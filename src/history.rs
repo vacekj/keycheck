@@ -1,8 +1,10 @@
 use git2::{Repository, Oid};
 use std::error::Error;
+use std::path::Path;
 use git2::RepositoryState::Clean;
+use ignore::WalkBuilder;
 
-use crate::main as checkerMain;
+use crate::{find_private_keys, main as checkerMain};
 
 fn get_all_commits(repo: &Repository) -> Result<Vec<Oid>, Box<dyn Error>> {
     let mut revwalk = repo.revwalk()?;
@@ -26,7 +28,8 @@ fn checkout_commit(repo: &Repository, id: &Oid) -> Result<(), Box<dyn Error>> {
 }
 
 fn main() {
-    let repo = Repository::discover(".").unwrap();
+    let repo = Repository::discover(".").expect("Couldn't open repository");
+    let head = repo.head().expect("Couldn't find head");
 
     /* Check if working directory is clean, abort otherwise */
     if !repo.state().eq(&Clean) {
@@ -34,12 +37,34 @@ fn main() {
         return;
     }
 
+    let mut private_keys: Vec<(std::path::PathBuf, usize)> = vec![];
+
     let commits = get_all_commits(&repo).unwrap();
     for id in &commits {
         checkout_commit(&repo, id).unwrap();
-        checkerMain();
+        let mut builder = WalkBuilder::new("./");
+        builder.standard_filters(false)
+            .hidden(false)
+            .parents(false)
+            .git_ignore(true);
+
+        let path = Path::new(".keycheckignore");
+        if path.is_file() {
+            builder.add_ignore(path);
+        }
+
+        private_keys.append(&mut find_private_keys(builder));
     }
 
-    /* Checkout head after running through all commits, even if main finds a match */
+    /* Checkout head after running through all commits */
+    repo.checkout_head(None).expect("Couldn't checkout head after finishing search");
 
+    if !private_keys.is_empty() {
+        println!("Warning: private keys found in the following files:");
+        for (path, line_number) in private_keys {
+            println!("{}:{}", path.display(), line_number);
+        }
+
+        std::process::exit(1);
+    }
 }

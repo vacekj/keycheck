@@ -34,7 +34,7 @@ pub fn main() {
     }
 }
 
-fn find_private_keys(builder: WalkBuilder) -> Vec<(std::path::PathBuf, usize)> {
+pub fn find_private_keys(builder: WalkBuilder) -> Vec<(std::path::PathBuf, usize)> {
     let private_keys = Arc::new(Mutex::new(Vec::new()));
 
     let visitor = |entry: Result<DirEntry, ignore::Error>| {
