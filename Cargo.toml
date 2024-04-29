@@ -17,8 +17,8 @@ lazy_static = "1.4.0"
 rayon = "1.7.0"
 git2 = "0.17.2"
 clap = { version = "4.4.2", features = ["derive"] }
-
-[dev-dependencies]
+dirs = "5.0.1"
 ethers = "2.0.3"
+
 
 

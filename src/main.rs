@@ -1,12 +1,13 @@
 mod history;
+mod shell;
 
+use crate::history::check_history;
 use clap::Parser;
+use ignore::{self, DirEntry, WalkBuilder, WalkState};
+use regex::Regex;
 use std::fs;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use ignore::{self, DirEntry, WalkBuilder, WalkState};
-use regex::Regex;
-use crate::history::check_history;
 
 lazy_static::lazy_static! {
     static ref PRIVATE_KEY_REGEX: Regex = Regex::new(r"0x([A-Fa-f0-9]{64})").unwrap();
@@ -26,7 +27,8 @@ pub fn main() {
         return;
     }
     let mut builder = WalkBuilder::new("./");
-    builder.standard_filters(false)
+    builder
+        .standard_filters(false)
         .hidden(false)
         .parents(false)
         .git_ignore(true);
@@ -71,7 +73,9 @@ pub fn find_private_keys(builder: WalkBuilder) -> Vec<(std::path::PathBuf, usize
 
 fn find_private_key(path: &Path) -> Option<usize> {
     let file_contents = fs::read_to_string(path).ok()?;
-    PRIVATE_KEY_REGEX.find(&file_contents).map(|key| count_newlines(&file_contents[..key.start()]) + 1)
+    PRIVATE_KEY_REGEX
+        .find(&file_contents)
+        .map(|key| count_newlines(&file_contents[..key.start()]) + 1)
 }
 
 fn count_newlines(s: &str) -> usize {
@@ -80,14 +84,14 @@ fn count_newlines(s: &str) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use std::{assert_eq, format};
     use super::*;
+    use ethers::prelude::H256;
+    use rand::Rng;
     use std::fs::File;
     use std::io::Write;
     use std::path::PathBuf;
-    use ethers::prelude::H256;
+    use std::{assert_eq, format};
     use tempfile::tempdir;
-    use rand::Rng;
 
     #[test]
     fn test_find_private_keys() {
@@ -117,7 +121,10 @@ mod tests {
                     let random_padding = random_string(&mut rng, 10);
 
                     file_contents = format!("{}{}{}\n", &file_contents, &key_str, random_padding);
-                    files_with_keys.push((file_path.clone(), count_newlines(&file_contents[..key_start]) + 1));
+                    files_with_keys.push((
+                        file_path.clone(),
+                        count_newlines(&file_contents[..key_start]) + 1,
+                    ));
                 }
             }
 
@@ -133,7 +140,11 @@ mod tests {
 
         let private_keys = find_private_keys(builder);
 
-        assert_eq!(private_keys.len(), files_with_keys.len(), "Private keys count mismatch");
+        assert_eq!(
+            private_keys.len(),
+            files_with_keys.len(),
+            "Private keys count mismatch"
+        );
 
         for (path, line) in files_with_keys {
             let expected_output = (path.clone(), line);

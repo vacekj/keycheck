@@ -1,10 +1,10 @@
-use git2::{Repository, Oid, BranchType};
+use git2::RepositoryState::Clean;
+use git2::{Oid, Repository};
+use ignore::WalkBuilder;
 use std::error::Error;
 use std::path::Path;
-use git2::RepositoryState::Clean;
-use ignore::WalkBuilder;
 
-use crate::{find_private_keys, main as checkerMain};
+use crate::find_private_keys;
 
 fn get_all_commits(repo: &Repository) -> Result<Vec<Oid>, Box<dyn Error>> {
     let mut revwalk = repo.revwalk()?;
@@ -44,7 +44,8 @@ pub fn check_history() {
     for id in &commits {
         checkout_commit(&repo, id).unwrap();
         let mut builder = WalkBuilder::new("./");
-        builder.standard_filters(false)
+        builder
+            .standard_filters(false)
             .hidden(false)
             .parents(false)
             .git_ignore(true);
@@ -58,12 +59,11 @@ pub fn check_history() {
     }
 
     /* Checkout head after running through all commits */
-    repo.checkout_tree(
-        &commit.tree().unwrap().into_object(),
-        None,
-    ).expect("Couldn't checkout initial commit");
+    repo.checkout_tree(&commit.tree().unwrap().into_object(), None)
+        .expect("Couldn't checkout initial commit");
 
-    repo.set_head(&(initial_branch_name.unwrap())).expect("Couldn't checkout initial commit");
+    repo.set_head(initial_branch_name.unwrap())
+        .expect("Couldn't checkout initial commit");
 
     if !private_keys.is_empty() {
         println!("Warning: private keys found in the following files:");
